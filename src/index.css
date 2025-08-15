@@ -23,6 +23,13 @@ body {
   padding: 0;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   overflow-x: hidden;
+  width: 100%;
+}
+
+#root {
+  margin: 0;
+  padding: 0;
+  width: 100%;
 }
 
 /* Responsive design */
@@ -63,6 +70,105 @@ html, body {
   background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
 }
 
+/* Sidebar specific scrollbar - Hidden */
+.sidebar-scroll-container::-webkit-scrollbar {
+  width: 0px;
+  background: transparent;
+}
+
+.sidebar-scroll-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar-scroll-container::-webkit-scrollbar-thumb {
+  background: transparent;
+}
+
+/* Firefox scrollbar - Hidden */
+.sidebar-scroll-container {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* Internet Explorer 10+ */
+  scroll-behavior: smooth;
+}
+
+/* Smooth scroll for all elements */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Header Responsive Styles */
+@media (min-width: 768px) {
+  .search-container {
+    display: block !important;
+  }
+  .admin-text {
+    display: block !important;
+  }
+}
+
+@media (max-width: 767px) {
+  .mobile-search {
+    display: block !important;
+  }
+}
+
+@media (max-width: 576px) {
+  .header-container {
+    padding: 12px 16px !important;
+  }
+}
+
+/* Dashboard Layout Responsive Styles */
+@media (max-width: 1200px) {
+  .dashboard-content {
+    padding: 16px !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-main-content {
+    margin-left: 0 !important;
+    width: 100vw !important;
+  }
+  
+  .sidebar-mobile-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 998;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+  }
+  
+  .sidebar-mobile-overlay.active {
+    opacity: 1;
+    visibility: visible;
+  }
+  
+  .sidebar-mobile {
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+  }
+  
+  .sidebar-mobile.active {
+    transform: translateX(0);
+  }
+}
+
+@media (max-width: 576px) {
+  .dashboard-content {
+    padding: 12px !important;
+  }
+  
+  .card {
+    margin-bottom: 1rem;
+  }
+}
+
 a {
   font-weight: 500;
   color: #646cff;
@@ -72,13 +178,7 @@ a:hover {
   color: #535bf2;
 }
 
-body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
-}
+/* Removed duplicate body styles - using the main body styles above */
 
 h1 {
   font-size: 3.2em;

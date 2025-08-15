@@ -1,10 +1,13 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { Router as RouterProvider, Routes, Route, Navigate } from "react-router-dom";
+import { useEffect } from "react";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useAuth } from "./redux/hooks/useAuth";
+import { history } from "./utils/history";
+import { startPerformanceMonitoring } from "./utils/performanceMonitor";
 
-import PrivateRoute from "./routes/PrivateRoute.jsx";
-import PublicRoute from "./routes/PublicRoute.jsx";
+// Components
+import PrivateRoute from "./components/PrivateRoute";
+import PublicRoute from "./components/PublicRoute";
 
 // Screens
 import LoginScreen from "./screen/LoginScreen";
@@ -12,74 +15,62 @@ import Dashboard from "./screen/Dashboard";
 
 function App() {
   const { checkAuth, isLoading, isAuthenticated } = useAuth();
-  const [authCheckComplete, setAuthCheckComplete] = useState(false);
+
+  // Initialize performance monitoring
+  useEffect(() => {
+    startPerformanceMonitoring();
+  }, []);
 
   useEffect(() => {
-    console.log('App useEffect - checking auth');
-    
     // Check authentication status when app loads
     const performAuthCheck = async () => {
       try {
         await checkAuth();
       } catch (error) {
-        console.log('Auth check error:', error);
-      } finally {
-        // Set auth check as complete after 2 seconds max
-        setTimeout(() => {
-          setAuthCheckComplete(true);
-        }, 2000);
+        console.error('Auth check error:', error);
       }
     };
 
     performAuthCheck();
   }, [checkAuth]); // Now safe to use checkAuth as it's memoized
 
-  const publicRoutes = [
-    { path: "/", component: <LoginScreen /> },
+  // Route configuration with proper route guards
+  const routes = [
+    { 
+      path: "/", 
+      element: (
+        <PublicRoute>
+          <LoginScreen />
+        </PublicRoute>
+      )
+    },
+    { 
+      path: "/dashboard", 
+      element: (
+        <PrivateRoute>
+          <Dashboard />
+        </PrivateRoute>
+      )
+    },
+    { 
+      path: "*", 
+      element: <Navigate to="/" replace /> 
+    }
   ];
 
-  const privateRoutes = [
-    { path: "/dashboard", component: <Dashboard /> },
-  ];
 
-  // Debug logging
-  console.log('App render - isLoading:', isLoading, 'isAuthenticated:', isAuthenticated, 'authCheckComplete:', authCheckComplete);
-
-  // Show loading spinner while checking auth status (with timeout)
-  if (isLoading && !authCheckComplete) {
-    console.log('Showing loading spinner');
-    return (
-      <div className="container-fluid vh-100 d-flex align-items-center justify-content-center">
-        <div className="text-center">
-          <div className="spinner-border text-primary" role="status">
-            <span className="visually-hidden">Loading...</span>
-          </div>
-          <p className="mt-2">Loading...</p>
-        </div>
-      </div>
-    );
-  }
-
-  console.log('Rendering main app with routes');
   return (
-    <Router>
+    <RouterProvider location={history.location} navigator={history}>
       <Routes>
-        {publicRoutes.map(({ path, component }) => (
+        {routes.map(({ path, element }) => (
           <Route
             key={path}
             path={path}
-            element={<PublicRoute>{component}</PublicRoute>}
-          />
-        ))}
-        {privateRoutes.map(({ path, component }) => (
-          <Route
-            key={path}
-            path={path}
-            element={<PrivateRoute>{component}</PrivateRoute>}
+            element={element}
           />
         ))}
       </Routes>
-    </Router>
+    </RouterProvider>
   );
 }
 

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../redux/hooks/useAuth';
 
+
 const LoginScreen = () => {
-  console.log('LoginScreen component rendering');
   
   const [formData, setFormData] = useState({
     email: '',
@@ -15,6 +15,8 @@ const LoginScreen = () => {
     // Clear any existing errors when component mounts
     clearError();
   }, [clearError]);
+
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -37,39 +39,50 @@ const LoginScreen = () => {
   return (
     <div style={{
       minHeight: '100vh',
+      width: '100vw',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
       background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
       fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
-      padding: '16px',
-      boxSizing: 'border-box'
+      padding: '20px',
+      boxSizing: 'border-box',
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      margin: 0
     }}>
       
       <div style={{
         width: '100%',
-        maxWidth: '400px',
-        minWidth: '280px'
+        maxWidth: '420px',
+        minWidth: '300px',
+        margin: '0 auto'
       }}>
         
         {/* Main Login Card */}
         <div style={{
           backgroundColor: 'rgba(255, 255, 255, 0.95)',
-          borderRadius: '16px',
-          boxShadow: '0 20px 40px rgba(0, 0, 0, 0.1)',
-          padding: '24px',
+          borderRadius: '20px',
+          boxShadow: '0 25px 50px rgba(0, 0, 0, 0.15)',
+          padding: '32px',
           backdropFilter: 'blur(10px)',
-          border: '1px solid rgba(255, 255, 255, 0.2)'
+          border: '1px solid rgba(255, 255, 255, 0.2)',
+          textAlign: 'center',
+          margin: '0 auto',
+          transform: 'translateY(0)',
+          transition: 'all 0.3s ease'
         }}>
           
           {/* Header */}
-          <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+          <div style={{ 
+            textAlign: 'center', 
+            marginBottom: '32px',
+            width: '100%'
+          }}>
             {/* Logo */}
             <div style={{
-              width: '60px',
-              height: '60px',
-              borderRadius: '50%',
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              width: '240px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -77,19 +90,19 @@ const LoginScreen = () => {
               color: 'white',
               fontSize: '1.5rem'
             }}>
-              📈
+              <img src='images/logo.png' alt="Logo" style={{ width: '100%', height: '100%' }} />
             </div>
             
             {/* Title */}
-            <h2 style={{
+            {/* <h2 style={{
               fontSize: 'clamp(1.5rem, 4vw, 2rem)',
               fontWeight: 'bold',
               color: '#333',
               margin: '0 0 8px 0',
               lineHeight: '1.2'
             }}>
-              Uptrends Partners
-            </h2>
+              Uptrends India
+            </h2> */}
             <p style={{
               fontSize: 'clamp(0.9rem, 3vw, 1rem)',
               color: '#666',
@@ -144,6 +157,7 @@ const LoginScreen = () => {
                   borderRadius: '8px',
                   border: '2px solid #e5e7eb',
                   backgroundColor: '#f9fafb',
+                  color: '#000000',
                   boxSizing: 'border-box',
                   transition: 'all 0.2s ease',
                   outline: 'none'
@@ -152,11 +166,13 @@ const LoginScreen = () => {
                   e.target.style.borderColor = '#667eea';
                   e.target.style.backgroundColor = '#ffffff';
                   e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
+                  e.target.style.color = '#000000';
                 }}
                 onBlur={(e) => {
                   e.target.style.borderColor = '#e5e7eb';
                   e.target.style.backgroundColor = '#f9fafb';
                   e.target.style.boxShadow = 'none';
+                  e.target.style.color = '#000000';
                 }}
               />
             </div>
@@ -186,6 +202,7 @@ const LoginScreen = () => {
                   borderRadius: '8px',
                   border: '2px solid #e5e7eb',
                   backgroundColor: '#f9fafb',
+                  color: '#000000',
                   boxSizing: 'border-box',
                   transition: 'all 0.2s ease',
                   outline: 'none'
@@ -194,11 +211,13 @@ const LoginScreen = () => {
                   e.target.style.borderColor = '#667eea';
                   e.target.style.backgroundColor = '#ffffff';
                   e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
+                  e.target.style.color = '#000000';
                 }}
                 onBlur={(e) => {
                   e.target.style.borderColor = '#e5e7eb';
                   e.target.style.backgroundColor = '#f9fafb';
                   e.target.style.boxShadow = 'none';
+                  e.target.style.color = '#000000';
                 }}
               />
             </div>
@@ -246,27 +265,7 @@ const LoginScreen = () => {
             </button>
           </form>
 
-          {/* Demo Credentials */}
-          <div style={{
-            backgroundColor: 'rgba(102, 126, 234, 0.05)',
-            borderRadius: '8px',
-            padding: '16px',
-            border: '1px solid rgba(102, 126, 234, 0.1)',
-            textAlign: 'center'
-          }}>
-            <div style={{
-              fontSize: '13px',
-              fontWeight: '600',
-              color: '#666',
-              marginBottom: '8px'
-            }}>
-              ℹ️ Demo Credentials
-            </div>
-            <div style={{ fontSize: '12px', color: '#333', lineHeight: '1.4' }}>
-              <div><strong>Email:</strong> salon4mein@gmail.com</div>
-              <div><strong>Password:</strong> Rahul@123</div>
-            </div>
-          </div>
+
 
           {/* Footer */}
           <div style={{
