@@ -1,8 +1,8 @@
-import { Router as RouterProvider, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useEffect } from "react";
 import 'bootstrap/dist/css/bootstrap.min.css';
+import 'react-toastify/dist/ReactToastify.css';
 import { useAuth } from "./redux/hooks/useAuth";
-import { history } from "./utils/history";
 import { startPerformanceMonitoring } from "./utils/performanceMonitor";
 
 // Components
@@ -12,6 +12,11 @@ import PublicRoute from "./components/PublicRoute";
 // Screens
 import LoginScreen from "./screen/LoginScreen";
 import Dashboard from "./screen/Dashboard";
+import PartnersScreen from "./screen/PartnersScreen";
+import AddSalonScreen from "./screen/AddSalonScreen";
+import BookingScreen from "./screen/BookingScreen";
+import ReportsScreen from "./screen/ReportsScreen";
+import ProfileScreen from "./screen/ProfileScreen";
 
 function App() {
   const { checkAuth, isLoading, isAuthenticated } = useAuth();
@@ -34,43 +39,77 @@ function App() {
     performAuthCheck();
   }, [checkAuth]); // Now safe to use checkAuth as it's memoized
 
-  // Route configuration with proper route guards
-  const routes = [
-    { 
-      path: "/", 
-      element: (
-        <PublicRoute>
-          <LoginScreen />
-        </PublicRoute>
-      )
-    },
-    { 
-      path: "/dashboard", 
-      element: (
-        <PrivateRoute>
-          <Dashboard />
-        </PrivateRoute>
-      )
-    },
-    { 
-      path: "*", 
-      element: <Navigate to="/" replace /> 
-    }
-  ];
-
-
   return (
-    <RouterProvider location={history.location} navigator={history}>
+    <BrowserRouter>
       <Routes>
-        {routes.map(({ path, element }) => (
-          <Route
-            key={path}
-            path={path}
-            element={element}
-          />
-        ))}
+        <Route 
+          path="/" 
+          element={
+            isAuthenticated ? (
+              <Navigate to="/dashboard" replace />
+            ) : (
+              <PublicRoute>
+                <LoginScreen />
+              </PublicRoute>
+            )
+          } 
+        />
+        <Route 
+          path="/dashboard" 
+          element={
+            <PrivateRoute>
+              <Dashboard />
+            </PrivateRoute>
+          } 
+        />
+        <Route 
+          path="/partners" 
+          element={
+            <PrivateRoute>
+              <PartnersScreen />
+            </PrivateRoute>
+          } 
+        />
+        <Route 
+          path="/add-salon" 
+          element={
+            <PrivateRoute>
+              <AddSalonScreen />
+            </PrivateRoute>
+          } 
+        />
+        <Route 
+          path="/bookings" 
+          element={
+            <PrivateRoute>
+              <BookingScreen />
+            </PrivateRoute>
+          } 
+        />
+        <Route 
+          path="/reports" 
+          element={
+            <PrivateRoute>
+              <ReportsScreen />
+            </PrivateRoute>
+          } 
+        />
+        <Route 
+          path="/profile" 
+          element={
+            <PrivateRoute>
+              <ProfileScreen />
+            </PrivateRoute>
+          } 
+        />
+        <Route 
+          path="*" 
+          element={
+            <Navigate to={isAuthenticated ? "/dashboard" : "/"} replace />
+          } 
+        />
       </Routes>
-    </RouterProvider>
+    </BrowserRouter>
   );
 }
 

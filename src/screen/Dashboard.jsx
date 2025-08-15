@@ -45,7 +45,15 @@ if (!ChartJS.registry.controllers.bar) {
 }
 
 const Dashboard = () => {
+  console.log('Dashboard component mounted/re-rendered');
   const { user, is_verified } = useAuth();
+  
+  useEffect(() => {
+    console.log('Dashboard component mounted');
+    return () => {
+      console.log('Dashboard component unmounted');
+    };
+  }, []);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   // Setup automatic token refresh

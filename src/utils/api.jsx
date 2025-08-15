@@ -6,6 +6,7 @@ import { redirectToLogin } from './history';
 export const API_ENDPOINTS = {
   LOGIN: `${config.API_BASE_URL}auth/admin-login/`,
   REFRESH_TOKEN: `${config.API_BASE_URL}auth/token/refresh/`,
+  PROFILE: `${config.API_BASE_URL}auth/profile/`,
 };
 
 // Helper function to make API calls with automatic token refresh

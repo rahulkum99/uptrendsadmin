@@ -1,113 +1,66 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const Sidebar = ({ isCollapsed = false, onToggle }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [hoveredItem, setHoveredItem] = useState(null);
-  const [activeItem, setActiveItem] = useState('Dashboard');
 
   const menuItems = [
     {
       id: 'dashboard',
       name: 'Dashboard',
-      icon: '📊',
+      icon: '🏠',
       path: '/dashboard'
     },
     {
-      id: 'salon-management',
-      name: 'Salon Management',
-      icon: '🏪',
-      path: '/salon-management'
-    },
-    {
-      id: 'branches',
-      name: 'Branches',
+      id: 'partners',
+      name: 'Partners',
       icon: '🏢',
-      path: '/branches',
-      isActive: true
+      path: '/partners'
     },
     {
-      id: 'revenue-management',
-      name: 'Revenue Management',
-      icon: '💰',
-      path: '/revenue-management'
-    },
-    {
-      id: 'all-salons',
-      name: 'All Salons',
-      icon: '🏛️',
-      path: '/all-salons'
-    },
-    {
-      id: 'marketing',
-      name: 'Marketing',
-      icon: '📢',
-      path: '/marketing'
-    },
-    {
-      id: 'appointments',
-      name: 'Appointments',
+      id: 'bookings',
+      name: 'Bookings',
       icon: '📅',
-      path: '/appointments'
-    },
-    {
-      id: 'customers',
-      name: 'Customers',
-      icon: '👥',
-      path: '/customers'
-    },
-    {
-      id: 'staff-management',
-      name: 'Staff Management',
-      icon: '👨‍💼',
-      path: '/staff'
-    },
-    {
-      id: 'services',
-      name: 'Services',
-      icon: '✂️',
-      path: '/services'
-    },
-    {
-      id: 'inventory',
-      name: 'Inventory',
-      icon: '📦',
-      path: '/inventory'
+      path: '/bookings'
     },
     {
       id: 'reports',
       name: 'Reports',
-      icon: '📈',
+      icon: '📊',
       path: '/reports'
     },
     {
-      id: 'analytics',
-      name: 'Analytics',
-      icon: '📊',
-      path: '/analytics'
-    },
-    {
-      id: 'payments',
-      name: 'Payments',
-      icon: '💳',
-      path: '/payments'
-    },
-    {
-      id: 'notifications',
-      name: 'Notifications',
-      icon: '🔔',
-      path: '/notifications'
-    },
-    {
-      id: 'settings',
-      name: 'Settings',
-      icon: '⚙️',
-      path: '/settings'
+      id: 'profile',
+      name: 'Profile',
+      icon: '👤',
+      path: '/profile'
     }
   ];
 
+  const [activeItem, setActiveItem] = useState(() => {
+    // Set initial active item based on current location
+    const currentPath = location.pathname;
+    const currentMenuItem = menuItems.find(item => item.path === currentPath);
+    return currentMenuItem ? currentMenuItem.name : 'Dashboard';
+  });
+
+  // Update active item when location changes
+  useEffect(() => {
+    const currentPath = location.pathname;
+    console.log('Sidebar: Current path changed to:', currentPath);
+    const currentMenuItem = menuItems.find(item => item.path === currentPath);
+    if (currentMenuItem) {
+      console.log('Sidebar: Setting active item to:', currentMenuItem.name);
+      setActiveItem(currentMenuItem.name);
+    }
+  }, [location.pathname, menuItems]);
+
   const handleItemClick = (item) => {
+    console.log('Sidebar item clicked:', item.name, 'navigating to:', item.path);
     setActiveItem(item.name);
-    // Add navigation logic here
-    console.log('Navigate to:', item.path);
+    navigate(item.path);
   };
 
   return (
@@ -189,7 +142,7 @@ const Sidebar = ({ isCollapsed = false, onToggle }) => {
       }}
       className="sidebar-scroll-container">
         {menuItems.map((item, index) => {
-          const isActive = item.name === activeItem || item.isActive;
+          const isActive = location.pathname === item.path || item.name === activeItem;
           const isHovered = hoveredItem === item.id;
           
           return (
@@ -309,18 +262,7 @@ const Sidebar = ({ isCollapsed = false, onToggle }) => {
                   whiteSpace: 'nowrap',
                   marginLeft: '12px',
                   zIndex: 1000,
-                  boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
-                  
-                  // Arrow
-                  '::before': {
-                    content: '""',
-                    position: 'absolute',
-                    right: '100%',
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    border: '6px solid transparent',
-                    borderRightColor: '#2c3e50'
-                  }
+                  boxShadow: '0 4px 20px rgba(0,0,0,0.15)'
                 }}>
                   {item.name}
                   

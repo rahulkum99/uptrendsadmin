@@ -1,9 +1,48 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../redux/hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
+import { API_ENDPOINTS } from '../utils/api';
 
 const Header = () => {
-  const { user, logout, isLoading } = useAuth();
+  const { user, logout, isLoading, access_token } = useAuth();
+  const navigate = useNavigate();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [profileData, setProfileData] = useState(null);
+  const [isLoadingProfile, setIsLoadingProfile] = useState(false);
+
+  // Fetch user profile data
+  useEffect(() => {
+    const fetchProfileData = async () => {
+      if (!access_token) return;
+      
+      setIsLoadingProfile(true);
+      try {
+        const response = await fetch(API_ENDPOINTS.PROFILE, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${access_token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setProfileData(data);
+        }
+      } catch (error) {
+        console.error('Error fetching profile data:', error);
+      } finally {
+        setIsLoadingProfile(false);
+      }
+    };
+
+    fetchProfileData();
+  }, [access_token]);
+
+  // Function to refresh profile data (can be called from other components)
+  const refreshProfileData = () => {
+    setProfileData(null); // Reset to trigger a new fetch
+  };
 
   const handleLogout = async () => {
     try {
@@ -18,17 +57,26 @@ const Header = () => {
   };
 
   return (
-    <header style={{
-      backgroundColor: '#2c3e50',
-      padding: '0',
-      position: 'sticky',
-      top: 0,
-      left: 0,
-      right: 0,
-      width: '100vw',
-      zIndex: 1000,
-      boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-    }}>
+    <>
+      <style>
+        {`
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}
+      </style>
+      <header style={{
+        backgroundColor: '#2c3e50',
+        padding: '0',
+        position: 'sticky',
+        top: 0,
+        left: 0,
+        right: 0,
+        width: '100vw',
+        zIndex: 1000,
+        boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+      }}>
       <div className="header-container" style={{
         display: 'flex',
         alignItems: 'center',
@@ -238,17 +286,90 @@ const Header = () => {
                 justifyContent: 'center',
                 color: 'white',
                 fontSize: '14px',
-                fontWeight: 'bold'
+                fontWeight: 'bold',
+                overflow: 'hidden',
+                position: 'relative'
               }}>
-                {user?.email ? user.email.charAt(0).toUpperCase() : 'A'}
+                {isLoadingProfile ? (
+                  <div style={{
+                    width: '100%',
+                    height: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    backgroundColor: '#3498db',
+                    borderRadius: '50%'
+                  }}>
+                    <div style={{
+                      width: '12px',
+                      height: '12px',
+                      border: '2px solid rgba(255,255,255,0.3)',
+                      borderTop: '2px solid white',
+                      borderRadius: '50%',
+                      animation: 'spin 1s linear infinite'
+                    }}></div>
+                  </div>
+                ) : profileData?.profile_picture ? (
+                  <img
+                    src={profileData.profile_picture}
+                    alt="Profile"
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                      borderRadius: '50%'
+                    }}
+                    onError={(e) => {
+                      // Fallback to text avatar if image fails to load
+                      e.target.style.display = 'none';
+                      e.target.nextSibling.style.display = 'flex';
+                    }}
+                  />
+                ) : null}
+                <div style={{
+                  width: '100%',
+                  height: '100%',
+                  display: (isLoadingProfile || profileData?.profile_picture) ? 'none' : 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backgroundColor: '#3498db',
+                  borderRadius: '50%'
+                }}>
+                  {profileData?.first_name 
+                    ? profileData.first_name.charAt(0).toUpperCase() 
+                    : (user?.email ? user.email.charAt(0).toUpperCase() : 'A')
+                  }
+                </div>
               </div>
               <div style={{
-                color: 'white',
-                fontSize: '14px',
-                fontWeight: '500',
-                display: 'none'
-              }} className="admin-text">
-                Admin
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'flex-start',
+                gap: '2px'
+              }}>
+                <div style={{
+                  color: 'white',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  lineHeight: '1.2'
+                }}>
+                  {isLoadingProfile ? 'Loading...' : 
+                    (profileData?.first_name && profileData?.last_name 
+                      ? `${profileData.first_name} ${profileData.last_name}` 
+                      : (user?.first_name && user?.last_name 
+                          ? `${user.first_name} ${user.last_name}` 
+                          : 'Admin User'
+                        )
+                    )
+                  }
+                </div>
+                <div style={{
+                  color: 'rgba(255,255,255,0.8)',
+                  fontSize: '12px',
+                  lineHeight: '1.2'
+                }}>
+                  {profileData?.user_email || user?.email || 'admin@uptrends.com'}
+                </div>
               </div>
               <div style={{
                 color: 'rgba(255,255,255,0.7)',
@@ -276,34 +397,118 @@ const Header = () => {
               }}>
                 <div style={{
                   padding: '12px 16px',
-                  borderBottom: '1px solid #f0f0f0'
+                  borderBottom: '1px solid #f0f0f0',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px'
                 }}>
                   <div style={{
-                    fontSize: '14px',
-                    fontWeight: '600',
-                    color: '#333',
-                    marginBottom: '4px'
+                    width: '40px',
+                    height: '40px',
+                    borderRadius: '50%',
+                    backgroundColor: '#3498db',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: 'white',
+                    fontSize: '16px',
+                    fontWeight: 'bold',
+                    overflow: 'hidden',
+                    position: 'relative',
+                    flexShrink: 0
                   }}>
-                    Admin User
+                    {isLoadingProfile ? (
+                      <div style={{
+                        width: '100%',
+                        height: '100%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        backgroundColor: '#3498db',
+                        borderRadius: '50%'
+                      }}>
+                        <div style={{
+                          width: '16px',
+                          height: '16px',
+                          border: '2px solid rgba(255,255,255,0.3)',
+                          borderTop: '2px solid white',
+                          borderRadius: '50%',
+                          animation: 'spin 1s linear infinite'
+                        }}></div>
+                      </div>
+                    ) : profileData?.profile_picture ? (
+                      <img
+                        src={profileData.profile_picture}
+                        alt="Profile"
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover',
+                          borderRadius: '50%'
+                        }}
+                        onError={(e) => {
+                          // Fallback to text avatar if image fails to load
+                          e.target.style.display = 'none';
+                          e.target.nextSibling.style.display = 'flex';
+                        }}
+                      />
+                    ) : null}
+                    <div style={{
+                      width: '100%',
+                      height: '100%',
+                      display: (isLoadingProfile || profileData?.profile_picture) ? 'none' : 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      backgroundColor: '#3498db',
+                      borderRadius: '50%'
+                    }}>
+                      {profileData?.first_name 
+                        ? profileData.first_name.charAt(0).toUpperCase() 
+                        : (user?.email ? user.email.charAt(0).toUpperCase() : 'A')
+                      }
+                    </div>
                   </div>
-                  <div style={{
-                    fontSize: '12px',
-                    color: '#666'
-                  }}>
-                    {user?.email || 'admin@uptrends.com'}
+                  <div style={{ flex: 1 }}>
+                    <div style={{
+                      fontSize: '14px',
+                      fontWeight: '600',
+                      color: '#333',
+                      marginBottom: '4px'
+                    }}>
+                      {isLoadingProfile ? 'Loading...' : 
+                        (profileData?.first_name && profileData?.last_name 
+                          ? `${profileData.first_name} ${profileData.last_name}` 
+                          : (user?.first_name && user?.last_name 
+                              ? `${user.first_name} ${user.last_name}` 
+                              : 'Admin User'
+                            )
+                        )
+                      }
+                    </div>
+                    <div style={{
+                      fontSize: '12px',
+                      color: '#666'
+                    }}>
+                      {profileData?.user_email || user?.email || 'admin@uptrends.com'}
+                    </div>
                   </div>
                 </div>
                 
                 <div style={{ padding: '8px 0' }}>
-                  <div style={{
-                    padding: '8px 16px',
-                    cursor: 'pointer',
-                    fontSize: '14px',
-                    color: '#333',
-                    transition: 'background-color 0.2s ease'
-                  }}
-                  onMouseEnter={(e) => e.target.style.backgroundColor = '#f8f9fa'}
-                  onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}>
+                  <div 
+                    onClick={() => {
+                      navigate('/profile');
+                      setIsDropdownOpen(false);
+                    }}
+                    style={{
+                      padding: '8px 16px',
+                      cursor: 'pointer',
+                      fontSize: '14px',
+                      color: '#333',
+                      transition: 'background-color 0.2s ease'
+                    }}
+                    onMouseEnter={(e) => e.target.style.backgroundColor = '#f8f9fa'}
+                    onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}>
                     👤 Profile
                   </div>
                   <div style={{
@@ -374,11 +579,12 @@ const Header = () => {
             outline: 'none'
           }}
         />
-      </div>
+             </div>
 
 
-    </header>
-  );
-};
+     </header>
+     </>
+   );
+ };
 
 export default Header;
