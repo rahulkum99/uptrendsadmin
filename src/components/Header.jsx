@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../redux/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
-import { API_ENDPOINTS } from '../utils/api';
+import { API_ENDPOINTS, apiCall } from '../utils/api';
+import { store } from '../redux/store';
 
 const Header = () => {
   const { user, logout, isLoading, access_token } = useAuth();
@@ -14,19 +15,10 @@ const Header = () => {
   useEffect(() => {
     const fetchProfileData = async () => {
       if (!access_token) return;
-      
       setIsLoadingProfile(true);
       try {
-        const response = await fetch(API_ENDPOINTS.PROFILE, {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${access_token}`,
-            'Content-Type': 'application/json',
-          },
-        });
-
-        if (response.ok) {
-          const data = await response.json();
+        const data = await apiCall(API_ENDPOINTS.PROFILE, { method: 'GET' }, store);
+        if (data) {
           setProfileData(data);
         }
       } catch (error) {
@@ -351,7 +343,10 @@ const Header = () => {
                   color: 'white',
                   fontSize: '14px',
                   fontWeight: '500',
-                  lineHeight: '1.2'
+                  lineHeight: '1.2',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px'
                 }}>
                   {isLoadingProfile ? 'Loading...' : 
                     (profileData?.first_name && profileData?.last_name 
@@ -362,6 +357,15 @@ const Header = () => {
                         )
                     )
                   }
+                  {profileData?.is_verified && (
+                    <span style={{
+                      backgroundColor: 'rgba(46, 204, 113, 0.2)',
+                      color: '#2ecc71',
+                      fontSize: '10px',
+                      padding: '2px 6px',
+                      borderRadius: '10px'
+                    }}>Verified</span>
+                  )}
                 </div>
                 <div style={{
                   color: 'rgba(255,255,255,0.8)',
@@ -370,6 +374,15 @@ const Header = () => {
                 }}>
                   {profileData?.user_email || user?.email || 'admin@uptrends.com'}
                 </div>
+                {profileData?.user_phone_number && (
+                  <div style={{
+                    color: 'rgba(255,255,255,0.7)',
+                    fontSize: '12px',
+                    lineHeight: '1.2'
+                  }}>
+                    {profileData.user_phone_number}
+                  </div>
+                )}
               </div>
               <div style={{
                 color: 'rgba(255,255,255,0.7)',
@@ -470,20 +483,35 @@ const Header = () => {
                   </div>
                   <div style={{ flex: 1 }}>
                     <div style={{
-                      fontSize: '14px',
-                      fontWeight: '600',
-                      color: '#333',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
                       marginBottom: '4px'
                     }}>
-                      {isLoadingProfile ? 'Loading...' : 
-                        (profileData?.first_name && profileData?.last_name 
-                          ? `${profileData.first_name} ${profileData.last_name}` 
-                          : (user?.first_name && user?.last_name 
-                              ? `${user.first_name} ${user.last_name}` 
-                              : 'Admin User'
-                            )
-                        )
-                      }
+                      <div style={{
+                        fontSize: '14px',
+                        fontWeight: '600',
+                        color: '#333'
+                      }}>
+                        {isLoadingProfile ? 'Loading...' : 
+                          (profileData?.first_name && profileData?.last_name 
+                            ? `${profileData.first_name} ${profileData.last_name}` 
+                            : (user?.first_name && user?.last_name 
+                                ? `${user.first_name} ${user.last_name}` 
+                                : 'Admin User'
+                              )
+                          )
+                        }
+                      </div>
+                      {profileData?.is_verified && (
+                        <span style={{
+                          backgroundColor: 'rgba(46, 204, 113, 0.15)',
+                          color: '#2ecc71',
+                          fontSize: '10px',
+                          padding: '2px 6px',
+                          borderRadius: '10px'
+                        }}>Verified</span>
+                      )}
                     </div>
                     <div style={{
                       fontSize: '12px',
@@ -491,6 +519,15 @@ const Header = () => {
                     }}>
                       {profileData?.user_email || user?.email || 'admin@uptrends.com'}
                     </div>
+                    {profileData?.user_phone_number && (
+                      <div style={{
+                        fontSize: '12px',
+                        color: '#666',
+                        marginTop: '2px'
+                      }}>
+                        {profileData.user_phone_number}
+                      </div>
+                    )}
                   </div>
                 </div>
                 
