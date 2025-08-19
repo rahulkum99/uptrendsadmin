@@ -2,7 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../redux/hooks/useAuth';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
-import { API_ENDPOINTS } from '../utils/api';
+import { API_ENDPOINTS, apiCall } from '../utils/api';
+import { store } from '../redux/store';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -54,16 +55,8 @@ const ProfileScreen = () => {
   const fetchProfileData = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch(API_ENDPOINTS.PROFILE, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${access_token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (response.ok) {
-        const data = await response.json();
+      const data = await apiCall(API_ENDPOINTS.PROFILE, { method: 'GET' }, store);
+      if (data) {
         setExistingProfile(data);
         const profileDataObj = {
           bio: data.bio || '',
@@ -76,9 +69,7 @@ const ProfileScreen = () => {
           user_phone_number: data.user_phone_number || ''
         };
         setProfileData(profileDataObj);
-        setOriginalData(profileDataObj); // Store original data for comparison
-      } else {
-        console.log('No existing profile found, starting fresh');
+        setOriginalData(profileDataObj);
       }
     } catch (error) {
       console.error('Error fetching profile:', error);
@@ -205,14 +196,18 @@ const ProfileScreen = () => {
         requestBody = JSON.stringify(changedFields);
       }
 
-      const response = await fetch(API_ENDPOINTS.PROFILE, {
-        method: 'PUT',
-        headers: headers,
-        body: requestBody,
-      });
+      // Use apiCall helper for PUT. If sending FormData, pass it through and let helper avoid forcing Content-Type.
+      const data = await apiCall(
+        API_ENDPOINTS.PROFILE,
+        {
+          method: 'PUT',
+          headers,
+          body: requestBody,
+        },
+        store
+      );
 
-      if (response.ok) {
-        const data = await response.json();
+      if (data) {
         console.log('Profile update successful:', data);
         setExistingProfile(data);
 
@@ -235,10 +230,6 @@ const ProfileScreen = () => {
         setPreviewUrl('');
 
         toast.success('Profile updated successfully!');
-      } else {
-        const errorData = await response.json();
-        console.error('Profile update failed:', errorData);
-        toast.error(errorData.detail || 'Failed to update profile');
       }
     } catch (error) {
       console.error('Error updating profile:', error);

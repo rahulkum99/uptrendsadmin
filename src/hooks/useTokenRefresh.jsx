@@ -12,8 +12,19 @@ export const useTokenRefresh = () => {
   const performRefresh = useCallback(async () => {
     try {
       scheduleIdleTask(async () => {
-        console.log('Performing token refresh...');
-        await refreshToken();
+        try {
+          console.log('Performing token refresh...');
+          await refreshToken();
+        } catch (error) {
+          // Silently ignore benign refresh cases
+          if (
+            error?.detail === 'Token still valid' ||
+            error?.detail === 'Token refresh already in progress'
+          ) {
+            return;
+          }
+          console.error('Token refresh error (caught):', error);
+        }
       }, 1000);
     } catch (error) {
       console.error('Token refresh error:', error);

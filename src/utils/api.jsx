@@ -12,9 +12,7 @@ export const API_ENDPOINTS = {
 // Helper function to make API calls with automatic token refresh
 export const apiCall = async (endpoint, options = {}, store = null) => {
   const defaultOptions = {
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers: {},
   };
 
   // Add authorization header if token exists
@@ -53,17 +51,36 @@ export const apiCall = async (endpoint, options = {}, store = null) => {
 
           return retryData;
         }
-             } else {
-         // Refresh failed, redirect to login
-         console.log('Token refresh failed, redirecting to login');
-         redirectToLogin();
-         return;
-       }
-     } catch (error) {
-       console.error('Token refresh error:', error);
-       redirectToLogin();
-       return;
-     }
+      } else {
+        // If refresh is already in progress or token still valid, wait briefly and retry once
+        const reason = refreshResult.payload?.detail;
+        if (reason === 'Token refresh already in progress' || reason === 'Token still valid') {
+          await new Promise((r) => setTimeout(r, 500));
+          const newToken = localStorage.getItem('access_token');
+          if (newToken) {
+            defaultOptions.headers['Authorization'] = `Bearer ${newToken}`;
+          }
+          const retryResponse = await fetch(endpoint, {
+            ...defaultOptions,
+            ...options,
+          });
+          const retryData = await retryResponse.json();
+          if (!retryResponse.ok) {
+            throw new Error(retryData.detail || 'API request failed after waiting for refresh');
+          }
+          return retryData;
+        }
+
+        // Other refresh failures -> redirect to login
+        console.log('Token refresh failed, redirecting to login');
+        redirectToLogin();
+        return;
+      }
+    } catch (error) {
+      console.error('Token refresh error:', error);
+      redirectToLogin();
+      return;
+    }
   }
 
   const data = await response.json();

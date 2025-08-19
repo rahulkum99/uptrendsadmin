@@ -62,7 +62,7 @@ export const refreshToken = createAsyncThunk(
       }
 
       // Check if we're already refreshing to prevent multiple simultaneous calls
-      if (state.auth.isLoading) {
+      if (state.auth.isRefreshing) {
         console.log('Already refreshing token, skipping...');
         return rejectWithValue({ detail: 'Token refresh already in progress' });
       }
@@ -142,6 +142,7 @@ const initialState = {
   refresh_token: localStorage.getItem(config.REFRESH_TOKEN_KEY) || null,
   isAuthenticated: !!localStorage.getItem(config.TOKEN_KEY),
   isLoading: false,
+  isRefreshing: false,
   error: null,
   is_verified: false,
 };
@@ -235,11 +236,11 @@ const authSlice = createSlice({
       // Refresh token cases
       .addCase(refreshToken.pending, (state) => {
         console.log('Token refresh pending');
-        state.isLoading = true;
+        state.isRefreshing = true;
       })
       .addCase(refreshToken.fulfilled, (state, action) => {
         console.log('Token refresh fulfilled');
-        state.isLoading = false;
+        state.isRefreshing = false;
         state.access_token = action.payload.access;
         state.isAuthenticated = true;
         // Keep existing user data and refresh token
@@ -248,7 +249,7 @@ const authSlice = createSlice({
       })
       .addCase(refreshToken.rejected, (state, action) => {
         console.log('Token refresh rejected:', action.payload);
-        state.isLoading = false;
+        state.isRefreshing = false;
         
         // Don't clear tokens if the reason is "Token still valid" or "already in progress"
         if (action.payload?.detail === 'Token still valid' || 
