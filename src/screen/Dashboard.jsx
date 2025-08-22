@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback, lazy, Suspense } from 'react';
-import { useAuth } from '../redux/hooks/useAuth';
+import { useAuth } from '../hooks/useAuth';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
-import { useTokenRefresh } from '../hooks/useTokenRefresh';
 
 import {
   FaUsers,
@@ -56,8 +55,7 @@ const Dashboard = () => {
   }, []);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
-  // Setup automatic token refresh
-  useTokenRefresh();
+  // Note: Token refresh is now handled automatically by useAutoRefresh in App.jsx
 
   // Memoize toggle function to prevent unnecessary re-renders
   const toggleSidebar = useCallback(() => {

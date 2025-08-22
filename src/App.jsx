@@ -2,7 +2,8 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useEffect } from "react";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'react-toastify/dist/ReactToastify.css';
-import { useAuth } from "./redux/hooks/useAuth";
+import { useAuth } from "./hooks/useAuth";
+import { useAutoRefresh } from "./hooks/useAutoRefresh";
 import { startPerformanceMonitoring } from "./utils/performanceMonitor";
 
 // Components
@@ -19,27 +20,18 @@ import ReportsScreen from "./screen/ReportsScreen";
 import ProfileScreen from "./screen/ProfileScreen";
 
 function App() {
-  const { checkAuth, isLoading, isAuthenticated } = useAuth();
+  const { isLoading, isAuthenticated } = useAuth();
+  
+  // Initialize automatic token refresh
+  useAutoRefresh();
 
   // Initialize performance monitoring
   useEffect(() => {
     startPerformanceMonitoring();
   }, []);
 
-  useEffect(() => {
-    // Check authentication status when app loads
-    const performAuthCheck = async () => {
-      try {
-        await checkAuth();
-      } catch (error) {
-        console.error('Auth check error:', error);
-      }
-    };
-
-    performAuthCheck();
-  }, [checkAuth]); // Now safe to use checkAuth as it's memoized
-
   return (
+    <>
     <BrowserRouter>
       <Routes>
         <Route 
@@ -110,6 +102,7 @@ function App() {
         />
       </Routes>
     </BrowserRouter>
+    </>
   );
 }
 

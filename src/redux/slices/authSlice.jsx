@@ -1,5 +1,16 @@
+/**
+ * DEPRECATED: This file is kept for backward compatibility only
+ * New code should use AuthContext and AuthService instead
+ * 
+ * Migration path:
+ * - Replace useSelector(state => state.auth) with useAuth()
+ * - Replace dispatch(loginUser()) with login()
+ * - Replace dispatch(refreshToken()) with authService.refreshAccessToken()
+ */
+
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { API_ENDPOINTS } from '../../utils/api.jsx';
+// Note: API_ENDPOINTS moved to authService.js
+// This file is deprecated - use AuthContext instead
 import config from '../../config/config.jsx';
 
 // Async thunk for login
@@ -85,7 +96,10 @@ export const refreshToken = createAsyncThunk(
         }
       }
 
-      // Call refresh endpoint
+      // Call refresh endpoint with timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+      
       const response = await fetch(API_ENDPOINTS.REFRESH_TOKEN, {
         method: 'POST',
         headers: {
@@ -94,7 +108,10 @@ export const refreshToken = createAsyncThunk(
         body: JSON.stringify({
           refresh: refreshTokenValue
         }),
+        signal: controller.signal
       });
+      
+      clearTimeout(timeoutId);
 
       const data = await response.json();
 
@@ -103,12 +120,33 @@ export const refreshToken = createAsyncThunk(
       }
 
       // Update localStorage with new access token
-      localStorage.setItem(config.TOKEN_KEY, data.access);
+      // Handle both 'access' and 'access_token' response formats
+      const newAccessToken = data.access || data.access_token;
+      if (newAccessToken) {
+        localStorage.setItem(config.TOKEN_KEY, newAccessToken);
+      }
 
-      return data;
+      return {
+        ...data,
+        access_token: newAccessToken || data.access_token,
+        access: newAccessToken || data.access
+      };
     } catch (error) {
       console.error('Token refresh error:', error);
-      return rejectWithValue({ detail: 'Token refresh failed' });
+      
+      // Handle different error types
+      if (error.name === 'AbortError') {
+        return rejectWithValue({ detail: 'Token refresh timeout' });
+      }
+      
+      if (error.message?.includes('Failed to fetch')) {
+        return rejectWithValue({ detail: 'Network error during token refresh' });
+      }
+      
+      return rejectWithValue({ 
+        detail: error.message || 'Token refresh failed',
+        error: error.name || 'Unknown error'
+      });
     }
   }
 );
@@ -241,8 +279,11 @@ const authSlice = createSlice({
       .addCase(refreshToken.fulfilled, (state, action) => {
         console.log('Token refresh fulfilled');
         state.isRefreshing = false;
-        state.access_token = action.payload.access;
+        // Handle both 'access' and 'access_token' response formats
+        const newAccessToken = action.payload.access || action.payload.access_token;
+        state.access_token = newAccessToken;
         state.isAuthenticated = true;
+        state.error = null; // Clear any previous errors
         // Keep existing user data and refresh token
         // state.refresh_token remains unchanged
         // state.user remains unchanged

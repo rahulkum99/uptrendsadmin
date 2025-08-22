@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useAuth } from '../redux/hooks/useAuth';
+import { useAuth } from '../hooks/useAuth';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import { ToastContainer, toast } from 'react-toastify';

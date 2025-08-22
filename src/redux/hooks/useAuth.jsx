@@ -1,3 +1,11 @@
+/**
+ * DEPRECATED: This Redux-based useAuth hook is deprecated
+ * Use the new Context-based useAuth hook instead:
+ * 
+ * Old: import { useAuth } from './redux/hooks/useAuth';
+ * New: import { useAuth } from './hooks/useAuth';
+ */
+
 import { useSelector, useDispatch } from 'react-redux';
 import { useCallback, useEffect, useMemo } from 'react';
 import {
@@ -57,16 +65,8 @@ export const useAuth = () => {
     dispatch(clearError());
   }, [dispatch]);
 
-  /** Auto refresh token every 15 minutes if logged in */
-  useEffect(() => {
-    if (auth.access_token && auth.refresh_token) {
-      const interval = setInterval(() => {
-        dispatch(refreshToken());
-      }, 15 * 60 * 1000); // every 15 min
-
-      return () => clearInterval(interval);
-    }
-  }, [auth.access_token, auth.refresh_token, dispatch]);
+  // Note: Auto refresh is now handled by useTokenRefresh hook
+  // This prevents conflicting refresh mechanisms
 
   /** Return stable object reference */
   return useMemo(() => ({

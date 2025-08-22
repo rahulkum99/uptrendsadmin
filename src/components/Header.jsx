@@ -1,40 +1,19 @@
-import React, { useState, useEffect } from 'react';
-import { useAuth } from '../redux/hooks/useAuth';
+import React, { useState } from 'react';
+import { useAuth } from '../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
-import { API_ENDPOINTS, apiCall } from '../utils/api';
-import { store } from '../redux/store';
+import { useGetProfileQuery } from '../redux/api/profileApi';
 
 const Header = () => {
-  const { user, logout, isLoading, access_token } = useAuth();
+  const { user, logout, isLoading } = useAuth();
   const navigate = useNavigate();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [profileData, setProfileData] = useState(null);
-  const [isLoadingProfile, setIsLoadingProfile] = useState(false);
-
-  // Fetch user profile data
-  useEffect(() => {
-    const fetchProfileData = async () => {
-      if (!access_token) return;
-      setIsLoadingProfile(true);
-      try {
-        const data = await apiCall(API_ENDPOINTS.PROFILE, { method: 'GET' }, store);
-        if (data) {
-          setProfileData(data);
-        }
-      } catch (error) {
-        console.error('Error fetching profile data:', error);
-      } finally {
-        setIsLoadingProfile(false);
-      }
-    };
-
-    fetchProfileData();
-  }, [access_token]);
-
-  // Function to refresh profile data (can be called from other components)
-  const refreshProfileData = () => {
-    setProfileData(null); // Reset to trigger a new fetch
-  };
+  
+  // Use RTK Query to fetch profile data
+  const { 
+    data: profileData, 
+    isLoading: isLoadingProfile,
+    error: profileError 
+  } = useGetProfileQuery();
 
   const handleLogout = async () => {
     try {

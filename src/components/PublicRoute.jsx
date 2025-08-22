@@ -1,6 +1,6 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
-import { useAuth } from '../redux/hooks/useAuth';
+import { useAuth } from '../hooks/useAuth';
 
 const PublicRoute = ({ children }) => {
   const { isAuthenticated, isLoading } = useAuth();

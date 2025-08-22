@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../redux/hooks/useAuth';
+import { useAuth } from '../hooks/useAuth';
 
 
 const LoginScreen = () => {

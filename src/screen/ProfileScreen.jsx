@@ -1,15 +1,27 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useAuth } from '../redux/hooks/useAuth';
+import { useAuth } from '../hooks/useAuth';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
-import { API_ENDPOINTS, apiCall } from '../utils/api';
-import { store } from '../redux/store';
+import { useGetProfileQuery, useUpdateProfileMutation } from '../redux/api/profileApi';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 const ProfileScreen = () => {
   console.log('ProfileScreen component mounted/re-rendered');
-  const { user, access_token } = useAuth();
+  const { user } = useAuth();
+  
+  // RTK Query hooks
+  const { 
+    data: existingProfile, 
+    isLoading: isLoadingProfile, 
+    error: profileError,
+    refetch: refetchProfile 
+  } = useGetProfileQuery();
+  
+  const [updateProfile, { 
+    isLoading: isSaving, 
+    error: updateError 
+  }] = useUpdateProfileMutation();
   
   useEffect(() => {
     console.log('ProfileScreen component mounted');
@@ -18,8 +30,6 @@ const ProfileScreen = () => {
     };
   }, []);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
 
   const [profileData, setProfileData] = useState({
     bio: '',
@@ -45,39 +55,40 @@ const ProfileScreen = () => {
 
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState('');
-  const [existingProfile, setExistingProfile] = useState(null);
 
-  // Fetch existing profile data
+  // Update profile data when existingProfile changes
   useEffect(() => {
-    fetchProfileData();
-  }, []);
-
-  const fetchProfileData = async () => {
-    setIsLoading(true);
-    try {
-      const data = await apiCall(API_ENDPOINTS.PROFILE, { method: 'GET' }, store);
-      if (data) {
-        setExistingProfile(data);
-        const profileDataObj = {
-          bio: data.bio || '',
-          profile_picture: data.profile_picture || '',
-          date_of_birth: data.date_of_birth || '',
-          gender: data.gender || '',
-          first_name: data.first_name || '',
-          last_name: data.last_name || '',
-          user_email: data.user_email || '',
-          user_phone_number: data.user_phone_number || ''
-        };
-        setProfileData(profileDataObj);
-        setOriginalData(profileDataObj);
-      }
-    } catch (error) {
-      console.error('Error fetching profile:', error);
-      toast.error('Error loading profile data');
-    } finally {
-      setIsLoading(false);
+    if (existingProfile) {
+      const profileDataObj = {
+        bio: existingProfile.bio || '',
+        profile_picture: existingProfile.profile_picture || '',
+        date_of_birth: existingProfile.date_of_birth || '',
+        gender: existingProfile.gender || '',
+        first_name: existingProfile.first_name || '',
+        last_name: existingProfile.last_name || '',
+        user_email: existingProfile.user_email || '',
+        user_phone_number: existingProfile.user_phone_number || ''
+      };
+      setProfileData(profileDataObj);
+      setOriginalData(profileDataObj);
     }
-  };
+  }, [existingProfile]);
+
+  // Handle profile loading error
+  useEffect(() => {
+    if (profileError) {
+      console.error('Profile loading error:', profileError);
+      toast.error('Error loading profile data');
+    }
+  }, [profileError]);
+
+  // Handle profile update error
+  useEffect(() => {
+    if (updateError) {
+      console.error('Profile update error:', updateError);
+      toast.error('Error updating profile');
+    }
+  }, [updateError]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -151,7 +162,6 @@ const ProfileScreen = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsSaving(true);
 
     // Get only changed fields
     const changedFields = getChangedFields();
@@ -159,7 +169,6 @@ const ProfileScreen = () => {
     // Check if there are any changes
     if (Object.keys(changedFields).length === 0 && !selectedFile) {
       toast.info('No changes detected');
-      setIsSaving(false);
       return;
     }
 
@@ -168,13 +177,9 @@ const ProfileScreen = () => {
     console.log('Current data:', profileData);
     console.log('Changed fields:', changedFields);
     console.log('Selected file:', selectedFile);
-    console.log('API Endpoint:', API_ENDPOINTS.PROFILE);
 
     try {
-      let requestBody;
-      let headers = {
-        'Authorization': `Bearer ${access_token}`,
-      };
+      let requestData;
 
       if (selectedFile) {
         // If file is selected, use FormData
@@ -188,54 +193,40 @@ const ProfileScreen = () => {
           }
         });
 
-        requestBody = formData;
-        // Don't set Content-Type for FormData, let browser set it with boundary
+        requestData = formData;
       } else {
         // If no file, use JSON with only changed fields
-        headers['Content-Type'] = 'application/json';
-        requestBody = JSON.stringify(changedFields);
+        requestData = changedFields;
       }
 
-      // Use apiCall helper for PUT. If sending FormData, pass it through and let helper avoid forcing Content-Type.
-      const data = await apiCall(
-        API_ENDPOINTS.PROFILE,
-        {
-          method: 'PUT',
-          headers,
-          body: requestBody,
-        },
-        store
-      );
+      // Use RTK Query mutation
+      const result = await updateProfile(requestData).unwrap();
 
-      if (data) {
-        console.log('Profile update successful:', data);
-        setExistingProfile(data);
+      console.log('Profile update successful:', result);
 
-        // Update original data to reflect the new state
-        const updatedProfileData = {
-          bio: data.bio || '',
-          profile_picture: data.profile_picture || '',
-          date_of_birth: data.date_of_birth || '',
-          gender: data.gender || '',
-          first_name: data.first_name || '',
-          last_name: data.last_name || '',
-          user_email: data.user_email || '',
-          user_phone_number: data.user_phone_number || ''
-        };
-        setOriginalData(updatedProfileData);
-        setProfileData(updatedProfileData);
+      // Update original data to reflect the new state
+      const updatedProfileData = {
+        bio: result.bio || '',
+        profile_picture: result.profile_picture || '',
+        date_of_birth: result.date_of_birth || '',
+        gender: result.gender || '',
+        first_name: result.first_name || '',
+        last_name: result.last_name || '',
+        user_email: result.user_email || '',
+        user_phone_number: result.user_phone_number || ''
+      };
+      setOriginalData(updatedProfileData);
+      setProfileData(updatedProfileData);
 
-        // Clear file selection after successful upload
-        setSelectedFile(null);
-        setPreviewUrl('');
+      // Clear file selection after successful upload
+      setSelectedFile(null);
+      setPreviewUrl('');
 
-        toast.success('Profile updated successfully!');
-      }
+      toast.success('Profile updated successfully!');
+
     } catch (error) {
       console.error('Error updating profile:', error);
-      toast.error('Network error occurred');
-    } finally {
-      setIsSaving(false);
+      toast.error(error.data?.detail || 'Failed to update profile');
     }
   };
 
@@ -243,7 +234,7 @@ const ProfileScreen = () => {
     setSidebarCollapsed(prev => !prev);
   }, []);
 
-  if (isLoading) {
+  if (isLoadingProfile) {
     return (
       <div className="d-flex align-items-center justify-content-center vh-100">
         <div className="spinner-border text-primary" role="status">
