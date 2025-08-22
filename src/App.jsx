@@ -18,6 +18,7 @@ import AddSalonScreen from "./screen/AddSalonScreen";
 import BookingScreen from "./screen/BookingScreen";
 import ReportsScreen from "./screen/ReportsScreen";
 import ProfileScreen from "./screen/ProfileScreen";
+import CustomerScreen from "./screen/CustomerScreen";
 
 function App() {
   const { isLoading, isAuthenticated } = useAuth();
@@ -91,6 +92,14 @@ function App() {
           element={
             <PrivateRoute>
               <ProfileScreen />
+            </PrivateRoute>
+          } 
+        />
+        <Route 
+          path="/customers" 
+          element={
+            <PrivateRoute>
+              <CustomerScreen />
             </PrivateRoute>
           } 
         />

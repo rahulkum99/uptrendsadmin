@@ -11,9 +11,9 @@ const baseQueryWithAuth = fetchBaseQuery({
   baseUrl: `${config.API_BASE_URL}auth/`,
   prepareHeaders: (headers) => {
     // Get token from authService
-    const { accessToken } = authService.getTokens();
-    if (accessToken) {
-      headers.set('authorization', `Bearer ${accessToken}`);
+    const token = authService.getAccessToken();
+    if (token) {
+      headers.set('authorization', `Bearer ${token}`);
     }
     return headers;
   },
@@ -29,13 +29,16 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
     
     try {
       // Use authService to refresh token
-      await authService.refreshAccessToken();
+      const newAccessToken = await authService.refreshAccessToken();
       
-      // Retry the original request
-      result = await baseQueryWithAuth(args, api, extraOptions);
+      if (newAccessToken) {
+        // Retry the original request
+        result = await baseQueryWithAuth(args, api, extraOptions);
+      }
     } catch (refreshError) {
       console.error('Token refresh failed:', refreshError);
-      // Redirect to login will be handled by authService
+      // Only logout if refresh actually fails
+      authService.logout();
       return result;
     }
   }

@@ -20,6 +20,12 @@ const Sidebar = ({ isCollapsed = false, onToggle }) => {
       path: '/partners'
     },
     {
+      id: 'customers',
+      name: 'Customers',
+      icon: '👥',
+      path: '/customers'
+    },
+    {
       id: 'bookings',
       name: 'Bookings',
       icon: '📅',

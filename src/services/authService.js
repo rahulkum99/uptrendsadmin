@@ -18,6 +18,11 @@ class AuthService {
     };
   }
 
+  // Get access token only
+  getAccessToken() {
+    return localStorage.getItem(config.TOKEN_KEY);
+  }
+
   // Save tokens to localStorage
   saveTokens(accessToken, refreshToken) {
     if (accessToken) {
