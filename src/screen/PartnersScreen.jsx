@@ -9,7 +9,7 @@ import { FaUsers, FaEdit, FaTrash, FaToggleOn, FaToggleOff, FaMapMarkerAlt, FaPh
 const PartnersScreen = () => {
   console.log('PartnersScreen component mounted/re-rendered');
   const { user } = useAuth();
-
+  
   useEffect(() => {
     console.log('PartnersScreen component mounted');
     return () => {
@@ -224,10 +224,10 @@ const PartnersScreen = () => {
             <div className="col-12">
               <div className="d-flex justify-content-between align-items-center">
                 <div>
-                  <h2 className="mb-1" style={{ color: '#2c3e50', fontWeight: '600' }}>
-                    Partners Management
-                  </h2>
-                  <p className="text-muted mb-0">Manage all your salon partners and their details</p>
+                                     <h2 className="mb-1" style={{ color: '#2c3e50', fontWeight: '600' }}>
+                     Partners Management
+                   </h2>
+                   <p className="text-muted mb-0">Manage all your salon partners and their details</p>
                 </div>
                 <button
                   onClick={handleAddNewSalon}
@@ -240,8 +240,8 @@ const PartnersScreen = () => {
                     fontWeight: '500'
                   }}
                 >
-                  <i className="fas fa-plus me-2"></i>
-                  Add New Partner
+                                     <i className="fas fa-plus me-2"></i>
+                   Add New Partner
                 </button>
               </div>
             </div>
@@ -462,8 +462,8 @@ const PartnersScreen = () => {
                       <p className="text-muted">Try adjusting your search or filters</p>
                     </div>
                   ) : (
-                    <div className="table-responsive">
-                      <table className="table table-hover mb-0">
+                  <div className="table-responsive">
+                    <table className="table table-hover mb-0">
                         <thead>
                           <tr style={{ backgroundColor: '#f8f9fa', borderBottom: '2px solid #dee2e6' }}>
                             <th style={{ border: 'none', padding: '20px 15px', fontWeight: '700', color: '#495057', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
@@ -503,9 +503,9 @@ const PartnersScreen = () => {
                             {/* <th style={{ border: 'none', padding: '20px 15px', fontWeight: '700', color: '#495057', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.5px', textAlign: 'center' }}>
                               Coordinates
                             </th> */}
-                          </tr>
-                        </thead>
-                        <tbody>
+                        </tr>
+                      </thead>
+                      <tbody>
                           {partners.map((partner, index) => (
                             <tr
                               key={partner.uid}
@@ -517,7 +517,7 @@ const PartnersScreen = () => {
                               className="partner-row"
                             >
                               <td style={{ padding: '20px 15px', verticalAlign: 'middle' }}>
-                                <div className="d-flex align-items-center">
+                              <div className="d-flex align-items-center">
                                   <div
                                     className="rounded-circle d-flex align-items-center justify-content-center me-3 shadow-sm"
                                     style={{
@@ -533,7 +533,7 @@ const PartnersScreen = () => {
                                   >
                                     {partner.service_name.charAt(0).toUpperCase()}
                                   </div>
-                                  <div>
+                                <div>
                                     <div style={{ fontWeight: '700', color: '#2c3e50', fontSize: '16px', marginBottom: '4px' }}>
                                       {partner.service_name}
                                     </div>
@@ -550,11 +550,11 @@ const PartnersScreen = () => {
                                         {partner.description.length > 80 ? `${partner.description.substring(0, 80)}...` : partner.description}
                                       </small>
                                     )} */}
-                                  </div>
                                 </div>
-                              </td>
+                              </div>
+                            </td>
                               <td style={{ padding: '20px 15px', verticalAlign: 'middle' }}>
-                                <div>
+                              <div>
                                   <div style={{ fontWeight: '600', color: '#2c3e50', fontSize: '14px', marginBottom: '4px' }}>
                                     {partner.city}, {partner.state}
                                   </div>
@@ -580,8 +580,8 @@ const PartnersScreen = () => {
                                       </small>
                                     )}
                                   </div>
-                                </div>
-                              </td>
+                              </div>
+                            </td>
                               <td style={{ padding: '20px 15px', verticalAlign: 'middle' }}>
                                 <div className="d-flex flex-column gap-2">
                                   {partner.service_type_display?.map((service, index) => (
@@ -599,7 +599,7 @@ const PartnersScreen = () => {
                                         }}
                                       />
                                       <div className="d-flex flex-column">
-                                        <span
+                              <span
                                           className="badge"
                                           style={{
                                             backgroundColor: '#e3f2fd',
@@ -613,7 +613,7 @@ const PartnersScreen = () => {
                                           }}
                                         >
                                           {service.category_name}
-                                        </span>
+                              </span>
                                         {service.small_desc && (
                                           <small className="text-muted" style={{ fontSize: '9px', lineHeight: '1.2' }}>
                                             {service.small_desc}
@@ -623,7 +623,7 @@ const PartnersScreen = () => {
                                     </div>
                                   ))}
                                 </div>
-                              </td>
+                            </td>
                               <td style={{ padding: '20px 15px', verticalAlign: 'middle' }}>
                                 <div className="d-flex flex-column gap-2">
                                   {partner.contact_number && (
@@ -663,7 +663,7 @@ const PartnersScreen = () => {
                                     </div>
                                   )}
                                 </div>
-                              </td>
+                            </td>
                               <td style={{ padding: '20px 15px', verticalAlign: 'middle' }}>
                                 <div className="d-flex justify-content-center">
                                   <span
@@ -688,11 +688,11 @@ const PartnersScreen = () => {
                                     ></div>
                                     {partner.is_active ? 'Active' : 'Inactive'}
                                   </span>
-                                </div>
-                              </td>
+                              </div>
+                            </td>
                               <td style={{ padding: '20px 15px', verticalAlign: 'middle' }}>
                                 <div className="d-flex justify-content-center gap-1">
-                                  <button
+                                <button
                                     onClick={() => handleViewDetails(partner)}
                                     className="btn btn-sm"
                                     style={{
@@ -766,8 +766,8 @@ const PartnersScreen = () => {
                                   >
                                     {partner.is_active ? <FaToggleOff size={10} className="me-1" /> : <FaToggleOn size={10} className="me-1" />}
                                     {partner.is_active ? 'Disable' : 'Enable'}
-                                  </button>
-                                  <button
+                                </button>
+                                <button
                                     onClick={() => handleDeletePartner(partner)}
                                     className="btn btn-sm"
                                     style={{
@@ -790,9 +790,9 @@ const PartnersScreen = () => {
                                     }}
                                   >
                                     <FaTrash size={10} />
-                                  </button>
-                                </div>
-                              </td>
+                                </button>
+                              </div>
+                            </td>
                               {/* <td style={{ padding: '20px 15px', verticalAlign: 'middle' }}>
                                  <div className="d-flex flex-column align-items-center">
                                    {partner.latitude && partner.longitude ? (
@@ -837,11 +837,11 @@ const PartnersScreen = () => {
                                    )}
                                  </div>
                                </td> */}
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                   )}
 
                   {/* Pagination Controls */}
@@ -863,21 +863,21 @@ const PartnersScreen = () => {
                               <option value={50}>50</option>
                             </select>
                             <span className="text-muted">per page</span>
-                          </div>
-                        </div>
+                </div>
+              </div>
                         <div className="col-md-6">
                           <nav aria-label="Partner pagination">
                             <ul className="pagination pagination-sm justify-content-end mb-0">
                               {/* Previous button */}
                               <li className={`page-item ${!hasPrevPage ? 'disabled' : ''}`}>
-                                <button
-                                  className="page-link"
-                                  onClick={() => handlePageChange(currentPage - 1)}
+                      <button
+                        className="page-link"
+                        onClick={() => handlePageChange(currentPage - 1)}
                                   disabled={!hasPrevPage}
-                                >
+                      >
                                   Previous
-                                </button>
-                              </li>
+                      </button>
+                    </li>
 
                               {/* Page numbers */}
                               {Array.from({ length: totalPages }, (_, index) => {
@@ -900,30 +900,30 @@ const PartnersScreen = () => {
 
                                 return (
                                   <li key={page} className={`page-item ${page === currentPage ? 'active' : ''}`}>
-                                    <button
-                                      className="page-link"
-                                      onClick={() => handlePageChange(page)}
-                                    >
-                                      {page}
-                                    </button>
-                                  </li>
+                        <button
+                          className="page-link"
+                          onClick={() => handlePageChange(page)}
+                        >
+                          {page}
+                        </button>
+                      </li>
                                 );
                               })}
 
                               {/* Next button */}
                               <li className={`page-item ${!hasNextPage ? 'disabled' : ''}`}>
-                                <button
-                                  className="page-link"
-                                  onClick={() => handlePageChange(currentPage + 1)}
+                      <button
+                        className="page-link"
+                        onClick={() => handlePageChange(currentPage + 1)}
                                   disabled={!hasNextPage}
-                                >
+                      >
                                   Next
-                                </button>
-                              </li>
-                            </ul>
-                          </nav>
-                        </div>
-                      </div>
+                      </button>
+                    </li>
+                  </ul>
+                </nav>
+              </div>
+            </div>
 
                       {/* Pagination info */}
                       <div className="row mt-2">
@@ -1113,9 +1113,9 @@ const PartnersScreen = () => {
                 <button type="button" className="btn btn-primary" onClick={() => handleEditPartner(selectedPartner)}>
                   Edit Partner
                 </button>
-              </div>
-            </div>
           </div>
+        </div>
+      </div>
         </div>
       )}
     </div>

@@ -19,6 +19,7 @@ import BookingScreen from "./screen/BookingScreen";
 import ReportsScreen from "./screen/ReportsScreen";
 import ProfileScreen from "./screen/ProfileScreen";
 import CustomerScreen from "./screen/CustomerScreen";
+import PartnerReviewScreen from "./screen/PartnerReviewScreen";
 
 function App() {
   const { isLoading, isAuthenticated } = useAuth();
@@ -60,6 +61,14 @@ function App() {
           element={
             <PrivateRoute>
               <PartnersScreen />
+            </PrivateRoute>
+          } 
+        />
+        <Route 
+          path="/partner-review" 
+          element={
+            <PrivateRoute>
+              <PartnerReviewScreen />
             </PrivateRoute>
           } 
         />

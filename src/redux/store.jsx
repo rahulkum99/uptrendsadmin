@@ -3,6 +3,8 @@ import authReducer from './slices/authSlice';
 import { profileApi } from './api/profileApi';
 import { customerApi } from './api/customerApi';
 import { partnerApi } from './api/partnerApi';
+import { bookingApi } from './api/bookingApi';
+import { partnerReviewApi } from './api/partnerReviewApi';
 
 export const store = configureStore({
   reducer: {
@@ -10,6 +12,8 @@ export const store = configureStore({
     [profileApi.reducerPath]: profileApi.reducer,
     [customerApi.reducerPath]: customerApi.reducer,
     [partnerApi.reducerPath]: partnerApi.reducer,
+    [bookingApi.reducerPath]: bookingApi.reducer,
+    [partnerReviewApi.reducerPath]: partnerReviewApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
@@ -21,7 +25,7 @@ export const store = configureStore({
         // Reduce the warning threshold or disable in development if needed
         warnAfter: 128, // Increase threshold from 32ms to 128ms
       },
-    }).concat(profileApi.middleware, customerApi.middleware, partnerApi.middleware),
+    }).concat(profileApi.middleware, customerApi.middleware, partnerApi.middleware, bookingApi.middleware, partnerReviewApi.middleware),
 });
 
 // TypeScript-style type exports (commented out for JavaScript)
